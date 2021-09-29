@@ -78,19 +78,30 @@ namespace MvcMovie.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Title,ReleaseDate,Genre,Price")] Movie movie)
+        public async Task<IActionResult> Create([Bind("Id,Title,ReleaseDate,Genre,Price,Rating")] Movie movie)
         {
-            if (ModelState.IsValid)
+            try
             {
-                _context.Add(movie);
-                await _context.SaveChangesAsync();
+                //Nếu ràng buộc tại Model thỏa mãn 
+                if (ModelState.IsValid)
+                {
+                    _context.Add(movie);
+                    await _context.SaveChangesAsync();
+                    return RedirectToAction(nameof(Index));
+                } 
+            }
+            catch (System.Exception) //Viết lệnh về lỗi có thể phát sinh
+            {
+                ModelState.AddModelError("","Mất kết nối với máy chủ");
                 return RedirectToAction(nameof(Index));
             }
+            
+            //Nếu ràng buộc tại Model ko thỏa mãn, thì trả về view kèm thông tin tại Movie đã nhập
             return View(movie);
         }
 
         // GET: Movies/Edit/5
-        public async Task<IActionResult> Edit(int? id)
+        public async Task<IActionResult> Edit ([Bind("Id,Title,ReleaseDate,Genre,Price,Rating")] int? id)
         {
             if (id == null)
             {
